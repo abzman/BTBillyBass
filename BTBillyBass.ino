@@ -24,7 +24,7 @@
   License: MIT License (https://opensource.org/licenses/MIT)
 
   Revised: Evan Allen <abzman2000@gmail.com> September 2020
-  Modified code for original three motor billy bass and tuned for my set of 
+  Modified code for original three motor billy bass and tuned for my set of
   strange drive voltages and slightly old and broken motors
 */
 
@@ -48,6 +48,7 @@ int lightIntensity = 0; // variable to hold the analog light value
 int fishState = 0; // variable to indicate the state Billy is in
 
 bool talking = false; //indicates whether the fish should be talking or not
+bool mouthClosed = true; //indicates whether the mouth is already closed or still needs to be
 
 //these variables are for storing the current time, scheduling times for actions to end, and when the action took place
 long currentTime;
@@ -60,7 +61,7 @@ void setup() {
   bodyMotor.setSpeed(0);
   mouthMotor.setSpeed(0);
   tailMotor.setSpeed(0);
-
+  mouthClosed = true;
   //input mode for sound pin
   pinMode(soundPin, INPUT);
   pinMode(lightPin, INPUT);
@@ -81,14 +82,14 @@ void loop() {
     Serial.println(soundVolume);
     }*/
   SMBillyBass(); //this is the switch/case statement to control the state of the fish
-  if(digitalRead(buttonPin) == 0)
-    {
+  if (digitalRead(buttonPin) == 0)
+  {
     //openMouth();
     flap();
     //bodyTest();
-    }else{
+  } else {
     //closeMouth();
-    }
+  }
 }
 
 void SMBillyBass() {
@@ -143,18 +144,25 @@ int updateLightInput() {
 }
 
 void openMouth() {
+  mouthClosed = false;
   mouthMotor.halt(); //stop the mouth motor
   mouthMotor.setSpeed(250); //set the mouth motor speed
   mouthMotor.forward(); //open the mouth
 }
 
 void closeMouth() {
-  mouthMotor.halt(); //stop the mouth motor
-  // original billy bass mouth spring loaded
-  mouthMotor.setSpeed(80); //set the mouth motor speed
-  mouthMotor.backward(); // close the mouth
-  delay(20);
-  mouthMotor.halt(); //stop the mouth motor
+  if (mouthClosed == false)
+  {
+    mouthMotor.halt(); //stop the mouth motor
+    // original billy bass mouth spring loaded
+    mouthMotor.setSpeed(80); //set the mouth motor speed
+    mouthMotor.backward(); // close the mouth
+    delay(80);
+    mouthMotor.halt(); //stop the mouth motor
+    mouthClosed = true;
+  } else {
+    //do nothing
+  }
 }
 
 void articulateBody(bool talking) { //function for articulating the body
